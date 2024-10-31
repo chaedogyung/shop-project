@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="boardMapper">
+
+    <!-- 게시판 글 작성 -->
+    <insert id="insert">
+        INSERT INTO MP_BOARD( BNO
+                            , TITLE
+                            , CONTENT
+                            , WRITER)
+        VALUES ( MP_BOARD_SEQ.NEXTVAL
+               , #{title}
+               , #{content}
+               , #{writer})
+
+    </insert>
+
+    <select id="listPage" resultType="com.board.vo.BoardVO" parameterType="map">
+        /*게시글 목록*/
+        SELECT
+            BNO,
+            TITLE,
+            CONTENT,
+            WRITER,
+            REGDATE
+        FROM (
+        SELECT
+            BNO,
+            TITLE,
+            CONTENT,
+            WRITER,
+            REGDATE,
+            ROW_NUMBER() OVER(ORDER BY BNO DESC) AS RNUM
+        FROM MP_BOARD
+        WHERE 1=1
+        <include refid="search"></include>
+        ) MP
+        WHERE RNUM BETWEEN #{rowStart} AND #{rowEnd}
+        ORDER BY BNO DESC
+    </select>
+
+    <select id="listCount" resultType="int">
+        /*게시물 총 갯수*/
+        SELECT COUNT(BNO)
+        FROM MP_BOARD
+        WHERE 1=1
+        <include refid="search"></include>
+        AND BNO > 0
+    </select>
+
+    <sql id="search">
+        <if test="searchType != null">
+            <if test="searchType == 't'.toString()">
+                AND TITLE LIKE '%' || #{keyword} || '%'
+            </if>
+            <if test="searchType == 'c'.toString()">
+                AND CONTENT LIKE '%' || #{keyword} || '%'
+            </if>
+            <if test="searchType == 'w'.toString()">
+                AND WRITER LIKE '%' || #{keyword} || '%'
+            </if>
+            <if test="searchType == 'n'.toString()">
+                AND (TITLE LIKE '%' || #{keyword} || '%')
+                or (CONTENT LIKE '%' || #{keyword} || '%')
+                or (WRITER LIKE '%' || #{keyword} || '%')
+            </if>
+        </if>
+    </sql>
+
+    <select id="read" parameterType="int" resultType="com.board.vo.BoardVO">
+        /*게시글 조회*/
+        select bno, title, content, writer, regdate
+        from mp_board
+        where bno = #{bno}
+    </select>
+
+    <update id="update" parameterType="com.board.vo.BoardVO">
+        /*게시글 수정*/
+        update mp_board
+        set title   = #{title},
+            content = #{content}
+        where bno = #{bno}
+    </update>
+
+    <delete id="delete" parameterType="int">
+        /*게시글 삭제*/
+        delete
+        from mp_board
+        where bno = #{bno}
+    </delete>
+</mapper>
