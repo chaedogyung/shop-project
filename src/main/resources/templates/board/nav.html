@@ -1,6 +1,20 @@
+<style>
+    .listLink {
+        list-style-type: none; /* Removes bullet points */
+        padding: 0;
+        margin: 0;
+        display: flex; /* Aligns items in a row */
+        gap: 10px; /* Optional: adds spacing between list items */
+    }
+</style>
 <div th:fragment="nav">
+    <hr/>
     <div>
-        <a href="/board/list">목록</a>
-        <a href="/board/writeView">글 작성</a>
+        <ul class="listLink" style="display: flex;margin-top: 0;margin-bottom: 10px;gap: 32px;">
+            <li><a href="/board/list">목록</a></li>
+            <li><a href="/board/writeView">글 작성</a></li>
+            <li><a href="">로그인</a></li>
+        </ul>
     </div>
+    <hr style="margin-top: 20px;"/>
 </div>

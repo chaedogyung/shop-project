@@ -14,7 +14,28 @@ public class ReplyDAOImpl implements ReplyDAO {
     private SqlSession sql;
 
     @Override
-    public List<ReplyVO> readReply(int bno) throws Exception {
-        return sql.selectList("replyMapper.readReply", bno);
+    public List<ReplyVO> replyList(int bno) throws Exception {
+        return sql.selectList("replyMapper.listReply", bno);
     }
+
+    @Override
+    public void writeReply(ReplyVO vo) throws Exception {
+        sql.insert("replyMapper.writeReply", vo);
+    }
+
+    @Override
+    public void updateReply(ReplyVO vo) throws Exception {
+        sql.update("replyMapper.updateReply", vo);
+    }
+
+    @Override
+    public void deleteReply(ReplyVO vo) throws Exception {
+        sql.delete("replyMapper.deleteReply", vo);
+    }
+
+    @Override
+    public ReplyVO selectReply(int re_rno) throws Exception {
+        return sql.selectOne("replyMapper.selectReply", re_rno);
+    }
+
 }

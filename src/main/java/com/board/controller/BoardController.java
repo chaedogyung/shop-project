@@ -9,6 +9,8 @@ import com.board.vo.SearchCriteria;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -74,9 +76,6 @@ public class BoardController {
         modelAndView.addObject("read", service.read(boardVO.getBno()));
         modelAndView.addObject("scri", scri);
 
-        List<ReplyVO> replyList = replyService.readReply((boardVO.getBno()));
-        modelAndView.addObject("replyList", replyList);
-
         modelAndView.setViewName("board/readView");
         return modelAndView;
     }
@@ -124,5 +123,64 @@ public class BoardController {
         return modelAndView;
     }
 
+    // 댓글 목록 조회
+    @GetMapping(value = "/replyList")
+    public ResponseEntity<List<ReplyVO>> replyList(BoardVO boardVO) {
+        logger.info("replyList");
+        try {
+            // 댓글 목록 가져오기
+            List<ReplyVO> replyList = replyService.replyList(boardVO.getBno());
+
+            // 응답이 비어 있지 않으면 OK(200), 비어 있으면 NO_CONTENT(204) 상태 코드 반환
+            if (!replyList.isEmpty()) {
+                return ResponseEntity.ok(replyList);  // OK(200) 응답
+            } else {
+                return ResponseEntity.status(HttpStatus.NO_CONTENT).body(replyList);  // NO_CONTENT(204) 응답
+            }
+        } catch (Exception e) {
+            logger.error("Exception occurred while retrieving reply list: ", e);
+            // 서버 오류가 발생하면 INTERNAL_SERVER_ERROR(500) 상태 코드 반환
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    //댓글 작성
+    @PostMapping(value = "/replyWrite")
+    public ResponseEntity<String> replyWrite(ReplyVO vo) throws Exception {
+        logger.info("replyWrite");
+        try {
+            replyService.writeReply(vo);
+            return ResponseEntity.status(HttpStatus.CREATED).body("Reply created successfully");
+        } catch (Exception e) {
+            logger.error("Error while writing reply: ", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to create reply.");
+        }
+    }
+
+    //댓글 수정POST
+    @PostMapping(value = "/replyUpdate")
+    public ResponseEntity<String> replyUpdate(ReplyVO vo) throws Exception {
+        logger.info("replyUpdate");
+        try {
+            replyService.updateReply(vo);
+            return ResponseEntity.status(HttpStatus.CREATED).body("Reply created successfully");
+        } catch (Exception e) {
+            logger.error("Error while writing reply: ", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to create reply.");
+        }
+    }
+
+    //댓글 삭제
+    @DeleteMapping(value = "/replyDelete")
+    public ResponseEntity<String> replyDelete(ReplyVO vo) throws Exception {
+        logger.info("replyDelete");
+        try {
+            replyService.deleteReply(vo);
+            return ResponseEntity.status(HttpStatus.CREATED).body("Reply created successfully");
+        } catch (Exception e) {
+            logger.error("Error while writing reply: ", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to create reply.");
+        }
+    }
 }
 
