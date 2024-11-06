@@ -13,7 +13,12 @@
         <ul class="listLink" style="display: flex;margin-top: 0;margin-bottom: 10px;gap: 32px;">
             <li><a href="/board/list">목록</a></li>
             <li><a href="/board/writeView">글 작성</a></li>
-            <li><a href="">로그인</a></li>
+            <li><a href="/member/register">로그인</a></li>
+            <li>
+                <th:if test="${member ! = null}">
+                    <p>${member.userid}님 안녕하세요.</p>
+                </th:if>
+
         </ul>
     </div>
     <hr style="margin-top: 20px;"/>

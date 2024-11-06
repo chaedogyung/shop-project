@@ -1,11 +1,9 @@
-package com.board.service;
+package com.board.service.board;
 
 import com.board.vo.BoardVO;
-import com.board.vo.Criteria;
 import com.board.vo.SearchCriteria;
 
 import java.util.List;
-import java.util.Map;
 
 public interface BoardService {
 

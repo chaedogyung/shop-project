@@ -1,40 +1,41 @@
-package com.board.service;
+package com.board.dao.board;
 
-import com.board.dao.ReplyDAO;
 import com.board.vo.ReplyVO;
+import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-@Service
-public class ReplyServiceImpl implements ReplyService{
+@Repository
+public class ReplyDAOImpl implements ReplyDAO {
 
     @Autowired
-    private ReplyDAO dao;
+    private SqlSession sql;
 
     @Override
     public List<ReplyVO> replyList(int bno) throws Exception {
-        return dao.replyList(bno);
+        return sql.selectList("replyMapper.listReply", bno);
     }
 
     @Override
     public void writeReply(ReplyVO vo) throws Exception {
-        dao.writeReply(vo);
+        sql.insert("replyMapper.writeReply", vo);
     }
 
     @Override
     public void updateReply(ReplyVO vo) throws Exception {
-        dao.updateReply(vo);
+        sql.update("replyMapper.updateReply", vo);
     }
 
     @Override
     public void deleteReply(ReplyVO vo) throws Exception {
-        dao.deleteReply(vo);
+        sql.delete("replyMapper.deleteReply", vo);
     }
 
     @Override
     public ReplyVO selectReply(int re_rno) throws Exception {
-        return dao.selectReply(re_rno);
+        return sql.selectOne("replyMapper.selectReply", re_rno);
     }
+
 }

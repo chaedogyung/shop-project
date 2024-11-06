@@ -1,11 +1,9 @@
-package com.board.dao;
+package com.board.dao.board;
 
 import com.board.vo.BoardVO;
-import com.board.vo.Criteria;
 import com.board.vo.SearchCriteria;
 
 import java.util.List;
-import java.util.Map;
 
 public interface BoardDAO {
 

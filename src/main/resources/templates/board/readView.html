@@ -212,7 +212,7 @@
     <header>
         <h1>게시판</h1>
     </header>
-    <div th:replace="~{board/nav :: nav}"></div>
+    <div th:replace="~{common/nav :: nav}"></div>
     <section id="container" class="container">
         <form name="readForm" role="form" method="post">
             <input type="hidden" id="bno" name="bno" th:value="${read.bno}"/>

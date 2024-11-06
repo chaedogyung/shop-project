@@ -1,7 +1,7 @@
-package com.board.controller;
+package com.board.controller.board;
 
-import com.board.service.BoardService;
-import com.board.service.ReplyService;
+import com.board.service.board.BoardService;
+import com.board.service.board.ReplyService;
 import com.board.vo.BoardVO;
 import com.board.vo.PageMaker;
 import com.board.vo.ReplyVO;

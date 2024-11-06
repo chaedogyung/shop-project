@@ -1,4 +1,4 @@
-package com.board.dao;
+package com.board.dao.board;
 
 import com.board.vo.ReplyVO;
 

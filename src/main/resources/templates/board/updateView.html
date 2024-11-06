@@ -46,7 +46,7 @@
     <header>
         <h1>게시판</h1>
     </header>
-    <div th:replace="~{board/nav :: nav}"></div>
+    <div th:replace="~{common/nav :: nav}"></div>
     <section id="container" class="container">
         <form name="updateForm" role="form" method="post" th:action="@{/board/update}">
             <input type="hidden" name="bno" th:value="${update.bno}" readonly="readonly">

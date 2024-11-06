@@ -1,4 +1,4 @@
-package com.board.service;
+package com.board.service.board;
 
 import com.board.vo.ReplyVO;
 
