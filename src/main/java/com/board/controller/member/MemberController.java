@@ -49,12 +49,12 @@ public class MemberController {
         MemberVO login = service.login(member);
 
         if (login != null) {
-            session.setAttribute("member", login);
+            session.setAttribute("member", login);  // Store the member in session
         } else {
-            session.setAttribute("member", null);
-            rttr.addFlashAttribute("msg",false);
+            session.setAttribute("member", null);    // Clear session if login fails
+            rttr.addFlashAttribute("msg", false);    // Pass failure message
         }
-        mav.setViewName("redirect:/");
+        mav.setViewName("redirect:/"); // Redirect to home view
         return mav;
     }
 
@@ -66,4 +66,21 @@ public class MemberController {
         mav.setViewName("redirect:/");
         return mav;
     }
+
+    //개인정보 수정화면
+    @GetMapping(value = "/memberUpdateView")
+    public ModelAndView getMemberUpdate() throws Exception {
+        ModelAndView mav = new ModelAndView();
+        return mav;
+    }
+
+    //개인정보 수정
+    @PostMapping(value = "/memberUpdate")
+    public ModelAndView postMemberUpdate(MemberVO vo, HttpSession session) throws Exception {
+        ModelAndView mav = new ModelAndView("redirect:/");
+        service.memberUpdate(vo);
+        session.invalidate();
+        return mav;
+    }
+
 }

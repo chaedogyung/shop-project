@@ -39,7 +39,7 @@
     </header>
     <div th:replace="~{common/nav :: nav}"></div>
     <section id="container" class="container">
-        <div th:if="${member.userid != null}">
+        <div th:if="${session.member.userid != null}">
             <form name="writeForm" method="post" th:action="@{/board/write}">
 
                 <div class="form-group">
@@ -59,7 +59,7 @@
                 </div>
             </form>
         </div>
-        <div th:if="${member.userid != null}">
+        <div th:if="${session.member.userid != null}">
             <p>로그인 후에 작성하실 수 있습니다.</p>
         </div>
     </section>

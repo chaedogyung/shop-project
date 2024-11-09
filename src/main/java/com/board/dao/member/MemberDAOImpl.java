@@ -19,4 +19,9 @@ public class MemberDAOImpl implements MemberDAO{
     public MemberVO login(MemberVO member) throws Exception {
         return sql.selectOne("memberMapper.login", member);
     }
+
+    @Override
+    public void memberUpdate(MemberVO member) throws Exception {
+        sql.update("memberMapper.memberUpdate", member);
+    }
 }
