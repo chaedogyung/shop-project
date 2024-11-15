@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,6 +24,9 @@ public class MemberController {
     @Autowired
     private MemberService service;
 
+    @Autowired
+    private BCryptPasswordEncoder pwdEncoder;
+
     //회원가입 get
     @GetMapping(value = "/registerView")
     public ModelAndView getRegister() throws Exception {
@@ -34,10 +38,18 @@ public class MemberController {
 
     //회원가입 post
     @PostMapping(value = "/register")
-    public String postRegister(MemberVO vo) throws Exception {
+    public ModelAndView postRegister(MemberVO vo) throws Exception {
+        ModelAndView mav = new ModelAndView();
         logger.info("post register");
+
+        //비밀번호 암호화
+        String inputPass = vo.getUserpass();
+        String pwd = pwdEncoder.encode(inputPass);
+        vo.setUserpass(pwd);
+
         service.register(vo);
-        return null;
+        mav.setViewName("redirect:/");
+        return mav;
     }
 
     //로그인
@@ -54,6 +66,8 @@ public class MemberController {
             session.setAttribute("member", null);    // Clear session if login fails
             rttr.addFlashAttribute("msg", false);    // Pass failure message
         }
+
+        System.out.println(session);
         mav.setViewName("redirect:/"); // Redirect to home view
         return mav;
     }
@@ -69,8 +83,8 @@ public class MemberController {
 
     //개인정보 수정화면
     @GetMapping(value = "/memberUpdateView")
-    public ModelAndView getMemberUpdate() throws Exception {
-        ModelAndView mav = new ModelAndView();
+    public ModelAndView registerUpdateView() throws Exception {
+        ModelAndView mav = new ModelAndView("member/memberUpdateView");
         return mav;
     }
 
@@ -83,4 +97,42 @@ public class MemberController {
         return mav;
     }
 
+    //회원 탈퇴 View
+    @GetMapping(value="/memberDeleteView")
+    public ModelAndView memberDeleteView() throws Exception {
+        ModelAndView mav = new ModelAndView("member/memberDeleteView");
+        return mav;
+    }
+
+    //회원탈퇴 post
+    @PostMapping(value="/memberDelete")
+    public ModelAndView memberDelete(MemberVO vo, HttpSession session, RedirectAttributes rttr) throws Exception {
+        ModelAndView mav = new ModelAndView("redirect:/");
+        ModelAndView mav2 = new ModelAndView("redirect:/member/memberDeleteView");
+        MemberVO member = (MemberVO) session.getAttribute("member");
+        String sessionPass = member.getUserpass();
+        String voPass = vo.getUserpass();
+
+        if (!sessionPass.equals(voPass)) {
+            rttr.addFlashAttribute("msg", false);
+            return mav2;
+        }
+        service.memberDelete(vo);
+        session.invalidate();
+        return mav;
+    }
+
+    //비밀번호 체크
+    @PostMapping(value="/passChk")
+    public int passChk(MemberVO vo) throws Exception {
+        int result = service.passChk(vo);
+        return result;
+    }
+
+    //아이디 중복 체크
+    @GetMapping(value = "/idChk")
+    public int idChk(MemberVO vo) throws Exception {
+        int result = service.idChk(vo);
+        return result;
+    }
 }

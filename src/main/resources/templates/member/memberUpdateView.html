@@ -1,10 +1,60 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{common/common :: common}">
 </head>
-<body>
+<script type="text/javascript">
+    $(document).ready(function () {
 
+        $('#submit').click(function (event) {
+            // 각 입력 필드의 값 가져오기
+            const userid = $('#userid').val().trim();
+            const userpass = $('#userpass').val().trim();
+            const username = $('#username').val().trim();
+
+            // 유효성 검사: 빈 값이거나 공백만 있을 때
+            if (!userid || !userpass || !username) {
+                alert('모든 항목을 입력해 주세요.');
+                event.preventDefault(); // 폼 전송 방지
+                return;
+            }
+
+            // 유효성 검사: 각 항목에 공백 포함 여부 확인
+            if (/\s/.test($('#userid').val()) || /\s/.test($('#userpass').val()) || /\s/.test($('#username').val())) {
+                alert('입력란에는 공백이 포함될 수 없습니다.');
+                event.preventDefault(); // 폼 전송 방지
+                return;
+            }
+        });
+
+        $(".cancel").on("click", function () {
+            location.href = "/";
+        });
+
+
+    });
+</script>
+<body>
+<section id="container">
+    <form th:action="@{/member/memberUpdate}" method="post">
+        <div class="form-group has-feedback">
+            <label class="control-label" for="userId">아이디</label>
+            <input class="form-control" type="text" id="userid" name="userid"
+                   th:value="${session.member.userid}" readonly/>
+        </div>
+        <div class="form-group has-feedback">
+            <label class="control-label" for="userPass">패스워드</label>
+            <input class="form-control" type="password" id="userpass" name="userpass"/>
+        </div>
+        <div class="form-group has-feedback">
+            <label class="control-label" for="userName">성명</label>
+            <input class="form-control" type="text" id="username" name="username"
+                   th:value="${session.member.username}"/>
+        </div>
+        <div class="form-group has-feedback">
+            <button class="btn btn-success" type="submit" id="submit">회원정보수정</button>
+            <button class="cancel btn btn-danger" type="button">취소</button>
+        </div>
+    </form>
+</section>
 </body>
 </html>

@@ -20,9 +20,31 @@
     </select>
 
     <update id="memberUpdate">
+        /*회원정보 수정*/
         update mp_member
         set userpass = #{userpass},
             username = #{username}
         where userid = #{userid}
     </update>
+    <delete id="memberDelete">
+        /*회원탈퇴*/
+        delete
+        from mp_member
+        where userid = #{userid}
+          and userpass = #{userpass}
+    </delete>
+
+    <select id="passChk" resultType="int">
+        /*패스워드 체크*/
+        SELECT COUNT(*) FROM MP_MEMBER
+        WHERE USERID = #{userid}
+          AND USERPASS = #{userpass}
+    </select>
+
+    <select id="idChk" resultType="int">
+        /*아이디 중복체크*/
+        select count(*)
+        from mp_member
+        where userid = #{userid}
+    </select>
 </mapper>

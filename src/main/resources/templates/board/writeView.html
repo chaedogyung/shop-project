@@ -39,9 +39,8 @@
     </header>
     <div th:replace="~{common/nav :: nav}"></div>
     <section id="container" class="container">
-        <div th:if="${session.member.userid != null}">
+        <div th:if="${session.member != null and session.member.userid != null}">
             <form name="writeForm" method="post" th:action="@{/board/write}">
-
                 <div class="form-group">
                     <label for="title" class="col-sm-2 control-label">제목</label>
                     <input type="text" id="title" name="title" class="chk form-control" title="제목을 입력하세요"/>
@@ -59,7 +58,7 @@
                 </div>
             </form>
         </div>
-        <div th:if="${session.member.userid != null}">
+        <div th:if="${session.member == null or session.member.userid == null}">
             <p>로그인 후에 작성하실 수 있습니다.</p>
         </div>
     </section>

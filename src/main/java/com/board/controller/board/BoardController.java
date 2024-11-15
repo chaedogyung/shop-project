@@ -34,7 +34,7 @@ public class BoardController {
     public ModelAndView writeView() {
         logger.info("writeView");
         ModelAndView modelAndView = new ModelAndView();
-        modelAndView.setViewName("/board/writeView");
+        modelAndView.setViewName("board/writeView");
         return modelAndView;
     }
 
