@@ -40,7 +40,7 @@
             if (deleteYN === true) {
 
                 formObj.attr("action", "/board/delete");
-                formObj.attr("method", "post");
+                formObj.attr("method", "get");
                 formObj.submit();
             }
         });
@@ -169,6 +169,14 @@
         });
     });
 
+    function fn_fileDown(fileNo){
+        var formObj = $("form[name='readForm']");
+        $("#FILE_NO").attr("th:value", fileNo);
+        formObj.attr("action", "/board/fileDown");
+        formObj.attr("method", "get");
+        formObj.submit();
+    }
+
     //댓글 목록 조회
     function startReplyList() {
         $.ajax({
@@ -220,10 +228,14 @@
             <input type="hidden" id="perPageNum" name="perPageNum" th:value="${scri.perPageNum}"/>
             <input type="hidden" id="searchType" name="searchType" th:value="${scri.searchType}"/>
             <input type="hidden" id="keyword" name="keyword" th:value="${scri.keyword}"/>
+            <div th:each="file : ${file}">
+                <input type="hidden" id="file_no" name="file_no" th:value="${file.FILE_NO}" />
+            </div>
         </form>
         <div class="form-group">
             <label for="title" class="col-sm-2 control-label">제목</label>
-            <input type="text" id="title" name="title" th:value="${read.title}" class="form-control" readonly="readonly">
+            <input type="text" id="title" name="title" th:value="${read.title}" class="form-control"
+                   readonly="readonly">
         </div>
         <div class="form-group">
             <label for="content" class="col-sm-2 control-label">내용</label>
@@ -239,7 +251,14 @@
             <label for="regDate" class="col-sm-2 control-label">작성날짜</label>
             <span th:text="${#dates.format(read.regdate, 'yyyy-MM-dd')}"></span>
         </div>
-
+        <span>파일 목록</span>
+        <div class="form-group" style="border:1px solid #dbdbdb;">
+            <th:block th:each="file : ${file}">
+                <a href="#" th:onclick="|fn_fileDown(${file.FILE_NO}); return false;|"
+                   th:text="${file.ORG_FILE_NAME}"></a>
+                <span th:text="${file.FILE_SIZE} + 'kb'"></span><br>
+            </th:block>
+        </div>
         <div>
             <button type="submit" class="update_btn btn btn-warning">수정</button>
             <button type="submit" class="delete_btn btn btn-danger">삭제</button>

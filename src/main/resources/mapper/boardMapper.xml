@@ -4,34 +4,38 @@
 <mapper namespace="boardMapper">
 
     <!-- 게시판 글 작성 -->
-    <insert id="insert">
-        INSERT INTO MP_BOARD( BNO
-                            , TITLE
-                            , CONTENT
-                            , WRITER)
-        VALUES ( MP_BOARD_SEQ.NEXTVAL
-               , #{title}
-               , #{content}
-               , #{writer})
-
+    <insert id="insert" parameterType="com.board.vo.BoardVO" useGeneratedKeys="true" keyProperty="bno">
+        <selectKey keyProperty="bno" resultType="int" order="BEFORE">
+            select mp_board_seq.nextval from dual
+        </selectKey>
+        INSERT INTO MP_BOARD(
+        BNO
+        , TITLE
+        , CONTENT
+        , WRITER
+        ) VALUES (
+        #{bno}
+        , #{title}
+        , #{content}
+        , #{writer})
     </insert>
 
     <select id="listPage" resultType="com.board.vo.BoardVO" parameterType="map">
         /*게시글 목록*/
         SELECT
-            BNO,
-            TITLE,
-            CONTENT,
-            WRITER,
-            REGDATE
+        BNO,
+        TITLE,
+        CONTENT,
+        WRITER,
+        REGDATE
         FROM (
         SELECT
-            BNO,
-            TITLE,
-            CONTENT,
-            WRITER,
-            REGDATE,
-            ROW_NUMBER() OVER(ORDER BY BNO DESC) AS RNUM
+        BNO,
+        TITLE,
+        CONTENT,
+        WRITER,
+        REGDATE,
+        ROW_NUMBER() OVER(ORDER BY BNO DESC) AS RNUM
         FROM MP_BOARD
         WHERE 1=1
         <include refid="search"></include>
@@ -89,4 +93,44 @@
         from mp_board
         where bno = #{bno}
     </delete>
+
+    <insert id="insertFile" parameterType="hashMap">
+        /*첨부파일 등록*/
+        insert into mp_file(file_no,
+                            bno,
+                            org_file_name,
+                            stored_file_name,
+                            file_size)
+        values (SEQ_MP_FILE_NO.NEXTVAL,
+                #{BNO},
+                #{ORG_FILE_NAME},
+                #{STORED_FILE_NAME},
+                #{FILE_SIZE})
+    </insert>
+
+    <select id="selectFileList" parameterType="int" resultType="hashMap">
+        /*첨부파일 목록 조회*/
+        select file_no,
+               org_file_name,
+               round(file_size / 1024, 1) as file_size
+        from mp_file
+        where bno = #{BNO}
+          and del_gb = 'N'
+          order by file_no asc
+    </select>
+
+    <select id="selectFileInfo" parameterType="hashMap" resultType="hashMap">
+        /*첨부파일 다운*/
+        select stored_file_name,
+               org_file_name
+        from mp_file
+        where file_no = #{file_no}
+    </select>
+
+    <update id="updateFile" parameterType="hashMap">
+        /*첨부파일 삭제*/
+        update mp_file set
+        del_gb = 'Y'
+        where file_no = #{FILE_NO}
+    </update>
 </mapper>

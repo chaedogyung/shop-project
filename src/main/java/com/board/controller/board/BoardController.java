@@ -2,20 +2,25 @@ package com.board.controller.board;
 
 import com.board.service.board.BoardService;
 import com.board.service.board.ReplyService;
+import com.board.util.FileUtils;
 import com.board.vo.BoardVO;
 import com.board.vo.PageMaker;
 import com.board.vo.ReplyVO;
 import com.board.vo.SearchCriteria;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.io.File;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/board/*")
@@ -26,6 +31,9 @@ public class BoardController {
 
     @Autowired
     ReplyService replyService;
+
+    @Autowired
+    FileUtils fileUtils;
 
     private static final Logger logger = LoggerFactory.getLogger(BoardController.class);
 
@@ -40,11 +48,11 @@ public class BoardController {
 
     //게시판 글 작성
     @PostMapping(value = "/write")
-    public ModelAndView write(BoardVO boardVO) throws Exception {
+    public ModelAndView write(BoardVO boardVO, MultipartHttpServletRequest mpRequest) throws Exception {
         ModelAndView modelAndView = new ModelAndView();
         logger.info("write");
-        service.write(boardVO);
-        modelAndView.setViewName("redirect:/");
+        service.write(boardVO, mpRequest);
+        modelAndView.setViewName("redirect:/board/list");
 
         return modelAndView;
     }
@@ -76,6 +84,9 @@ public class BoardController {
         modelAndView.addObject("read", service.read(boardVO.getBno()));
         modelAndView.addObject("scri", scri);
 
+        List<Map<String, Object>> fileList = service.selectFileList(boardVO.getBno());
+        modelAndView.addObject("file", fileList);
+
         modelAndView.setViewName("board/readView");
         return modelAndView;
     }
@@ -85,18 +96,29 @@ public class BoardController {
     public ModelAndView updateView(BoardVO boardVO, @ModelAttribute("scri") SearchCriteria scri) throws Exception {
         logger.info("updateView");
         ModelAndView modelAndView = new ModelAndView();
+
         modelAndView.addObject("update", service.read(boardVO.getBno()));
         modelAndView.addObject("scri", scri);
+
+        List<Map<String, Object>> fileList = service.selectFileList(boardVO.getBno());
+        modelAndView.addObject("file", fileList);
+
         modelAndView.setViewName("board/updateView");
         return modelAndView;
     }
 
     //게시판 수정
     @PostMapping(value = "/update")
-    public ModelAndView update(BoardVO boardVO, @ModelAttribute("scri") SearchCriteria scri, RedirectAttributes rttr) throws Exception {
+    public ModelAndView update(BoardVO boardVO,
+                               @ModelAttribute("scri") SearchCriteria scri,
+                               RedirectAttributes rttr,
+                               @RequestParam(value = "fileNoDel[]") String[] files,
+                               @RequestParam(value = "fileNameDel[]") String[] fileNames,
+                               MultipartHttpServletRequest mpRequest) throws Exception {
         logger.info("update");
-        service.update(boardVO);
+        service.update(boardVO, files, fileNames, mpRequest);
         ModelAndView modelAndView = new ModelAndView();
+
         rttr.addAttribute("page", scri.getPage());
         rttr.addAttribute("perPageNum", scri.getPerPageNum());
         rttr.addAttribute("searchType", scri.getSearchType());
@@ -107,7 +129,7 @@ public class BoardController {
     }
 
     //게시판 삭제
-    @PostMapping(value = "/delete")
+    @GetMapping(value = "/delete")
     public ModelAndView delete(BoardVO boardVO, @ModelAttribute("scri") SearchCriteria scri, RedirectAttributes rttr) throws Exception {
         logger.info("delete");
 
@@ -181,6 +203,25 @@ public class BoardController {
             logger.error("Error while writing reply: ", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to create reply.");
         }
+    }
+
+    //첨부파일 다운로드
+    @GetMapping(value = "/fileDown")
+    public void fileDown(@RequestParam Map<String, Object> map, HttpServletResponse response) throws Exception {
+        logger.info("fileDown");
+        Map<String, Object> resultMap = service.selectFileInfo(map);
+//        String storedFileName = (String) resultMap.get("STORED_FILE_NAME");
+        String storedFileName = FileUtils.filePath + resultMap.get("STORED_FILE_NAME");
+        String originalFileName = (String) resultMap.get("ORG_FILE_NAME");
+
+        byte fileByte[] = org.apache.commons.io.FileUtils.readFileToByteArray(new File(storedFileName));
+
+        response.setContentType("application/octet-stream");
+        response.setContentLength(fileByte.length);
+        response.setHeader("Content-Disposition", "attachment; filename=\"" + originalFileName + "\"");
+        response.getOutputStream().write(fileByte);
+        response.getOutputStream().flush();
+        response.getOutputStream().close();
     }
 }
 

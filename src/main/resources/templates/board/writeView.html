@@ -8,10 +8,33 @@
     <meta charset="UTF-8">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <title>게시판</title>
+    <style>
+        #fileIndex .form-group {
+            display: flex;            /* Use flexbox to align items */
+            align-items: center;      /* Vertically align items */
+            margin-bottom: 10px;      /* Add some space between rows */
+        }
+
+        #fileIndex input[type="file"] {
+            flex: 1;                  /* Allow file input to take available space */
+            margin-right: 10px;       /* Add spacing between file input and button */
+        }
+
+        #fileIndex button {
+            flex-shrink: 0;           /* Prevent the button from shrinking */
+            cursor: pointer;          /* Make the button visually interactive */
+        }
+    </style>
 </head>
 <script type="text/javascript">
     $(document).ready(function () {
         var formObj = $("form[name='writeForm']");
+
+        $(document).on("click","#fileDel", function(){
+            $(this).parent().remove();
+        })
+        fn_addFile();
+
         $(".write_btn").on("click", function () {
             if (fn_valiChk()) {
                 return false;
@@ -31,6 +54,17 @@
             }
         }
     }
+
+    function fn_addFile(){
+        var fileIndex =1;
+        $(".fileAdd_btn").on("click", function(){
+            $("#fileIndex").append("<div class=\"form-group\"><input type='file' style='float:left;' name='file_"+(fileIndex++)+"'>"+"<button type='button' style='float:right;' id='fileDelBtn'>"+"삭제"+"</button></div>");
+        })
+        $(document).on("click","#fileDelBtn", function(){
+            $(this).parent().remove();
+
+        });
+    }
 </script>
 <body>
 <div class="container" id="root">
@@ -40,7 +74,7 @@
     <div th:replace="~{common/nav :: nav}"></div>
     <section id="container" class="container">
         <div th:if="${session.member != null and session.member.userid != null}">
-            <form name="writeForm" method="post" th:action="@{/board/write}">
+            <form name="writeForm" method="post" th:action="@{/board/write}" enctype="multipart/form-data">
                 <div class="form-group">
                     <label for="title" class="col-sm-2 control-label">제목</label>
                     <input type="text" id="title" name="title" class="chk form-control" title="제목을 입력하세요"/>
@@ -53,8 +87,16 @@
                     <label for="writer" class="col-sm-2 control-label">작성자</label>
                     <input type="text" id="writer" name="writer" class="chk form-control" title="작성자를 입력하세요"/>
                 </div>
+
+                <div class="form-group">
+                    <input type="file" name="file"/>
+                </div>
+                <div class="form-group" id="fileIndex">
+
+                </div>
                 <div class="form-group">
                     <button class="write_btn btn btn-warning" type="submit">작성</button>
+                    <button class="fileAdd_btn btn btn-primary" type="button">파일추가</button>
                 </div>
             </form>
         </div>

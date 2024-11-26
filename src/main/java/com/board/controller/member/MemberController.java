@@ -61,14 +61,20 @@ public class MemberController {
         MemberVO login = service.login(member);
 
         if (login != null) {
-            session.setAttribute("member", login);  // Store the member in session
+            boolean pwdMatch = pwdEncoder.matches(member.getUserpass(), login.getUserpass());
+            if (pwdMatch) {
+                session.setAttribute("member", login);
+            } else if (!pwdMatch) {
+                session.setAttribute("member", null);
+                rttr.addFlashAttribute("msg", false);
+            }
         } else {
-            session.setAttribute("member", null);    // Clear session if login fails
-            rttr.addFlashAttribute("msg", false);    // Pass failure message
+            session.setAttribute("member", null);
+            rttr.addFlashAttribute("msg", false);
         }
 
-        System.out.println(session);
-        mav.setViewName("redirect:/"); // Redirect to home view
+
+        mav.setViewName("redirect:/");
         return mav;
     }
 
@@ -98,35 +104,37 @@ public class MemberController {
     }
 
     //회원 탈퇴 View
-    @GetMapping(value="/memberDeleteView")
+    @GetMapping(value = "/memberDeleteView")
     public ModelAndView memberDeleteView() throws Exception {
         ModelAndView mav = new ModelAndView("member/memberDeleteView");
         return mav;
     }
 
     //회원탈퇴 post
-    @PostMapping(value="/memberDelete")
+    @PostMapping(value = "/memberDelete")
     public ModelAndView memberDelete(MemberVO vo, HttpSession session, RedirectAttributes rttr) throws Exception {
         ModelAndView mav = new ModelAndView("redirect:/");
-        ModelAndView mav2 = new ModelAndView("redirect:/member/memberDeleteView");
-        MemberVO member = (MemberVO) session.getAttribute("member");
-        String sessionPass = member.getUserpass();
-        String voPass = vo.getUserpass();
-
-        if (!sessionPass.equals(voPass)) {
-            rttr.addFlashAttribute("msg", false);
-            return mav2;
-        }
+//        ModelAndView mav2 = new ModelAndView("redirect:/member/memberDeleteView");
+//        MemberVO member = (MemberVO) session.getAttribute("member");
+//        String sessionPass = member.getUserpass();
+//        String voPass = vo.getUserpass();
+//
+//        if (!sessionPass.equals(voPass)) {
+//            rttr.addFlashAttribute("msg", false);
+//            return mav2;
+//        }
         service.memberDelete(vo);
         session.invalidate();
         return mav;
     }
 
     //비밀번호 체크
-    @PostMapping(value="/passChk")
-    public int passChk(MemberVO vo) throws Exception {
-        int result = service.passChk(vo);
-        return result;
+    @PostMapping(value = "/passChk")
+    public boolean passChk(MemberVO vo) throws Exception {
+        MemberVO login = service.login(vo);
+        boolean pwdChk = pwdEncoder.matches(vo.getUserpass(), login.getUserpass());
+//        int result = service.passChk(vo);
+        return pwdChk;
     }
 
     //아이디 중복 체크

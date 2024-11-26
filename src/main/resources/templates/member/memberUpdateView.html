@@ -24,18 +24,33 @@
                 event.preventDefault(); // 폼 전송 방지
                 return;
             }
+
+            $.ajax({
+                url: "/member/passChk",
+                type: "POST",
+                dataType: "json",
+                data: $("#updateForm").serializeArray(),
+                success: function (data) {
+                    if (data == true) {
+                        if (confirm("회원정보를 수정하시겠습니까?")) {
+                            $("#updateForm").submit();
+                        }
+                    } else {
+                        alert("패스워드가 틀렸습니다.");
+                        return;
+                    }
+                }
+            })
         });
 
         $(".cancel").on("click", function () {
             location.href = "/";
         });
-
-
     });
 </script>
 <body>
 <section id="container">
-    <form th:action="@{/member/memberUpdate}" method="post">
+    <form th:action="@{/member/memberUpdate}" method="post" id="updateForm">
         <div class="form-group has-feedback">
             <label class="control-label" for="userId">아이디</label>
             <input class="form-control" type="text" id="userid" name="userid"
@@ -50,11 +65,11 @@
             <input class="form-control" type="text" id="username" name="username"
                    th:value="${session.member.username}"/>
         </div>
-        <div class="form-group has-feedback">
-            <button class="btn btn-success" type="submit" id="submit">회원정보수정</button>
-            <button class="cancel btn btn-danger" type="button">취소</button>
-        </div>
     </form>
+    <div class="form-group has-feedback">
+        <button class="btn btn-success" type="button" id="submit">회원정보수정</button>
+        <button class="cancel btn btn-danger" type="button">취소</button>
+    </div>
 </section>
 </body>
 </html>
