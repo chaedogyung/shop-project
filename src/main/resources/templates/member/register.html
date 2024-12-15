@@ -63,30 +63,40 @@
     }
 </script>
 <body>
-<section id="container">
-    <form th:action="@{/member/register}" method="post">
-        <div class="form-group has-feedback">
-            <label class="control-label">아이디</label>
-            <input class="form-control" type="text" id="userid" name="userid"/>
-            <button class="idChk" type="button" id="idChk" th:onclick="fn_idChk()" value="N">중복확인</button>
+<div id="root" class="container">
+    <header>
+        <h1>회원가입</h1>
+    </header>
+    <div th:replace="~{common/nav :: header}"></div>
+    <!-- Include Sidebar -->
+    <div th:replace="~{common/sidebar :: sidebar}"></div>
 
-        </div>
+    <section id="container" class="container" style="margin-top: -634px;">
+        <form th:action="@{/member/register}" method="post">
+            <div class="form-group has-feedback">
+                <label class="control-label">아이디</label>
+                <input class="form-control" type="text" id="userid" name="userid"/>
+                <button class="idChk" type="button" id="idChk" th:onclick="fn_idChk()" value="N">중복확인</button>
 
-        <div class="form-group has-feedback">
-            <label class="control-label">비밀번호</label>
-            <input class="form-control" type="text" id="userpass" name="userpass"/>
-        </div>
+            </div>
 
-        <div class="form-group has-feedback">
-            <label class="control-label">성명</label>
-            <input class="form-control" type="text" id="username" name="username"/>
-        </div>
+            <div class="form-group has-feedback">
+                <label class="control-label">비밀번호</label>
+                <input class="form-control" type="text" id="userpass" name="userpass"/>
+            </div>
 
-        <div class="form-group has-feedback">
-            <button class="btn btn-success" type="submit" id="submit">회원가입</button>
-            <button class="btn btn-danger cancel" type="button">취소</button>
-        </div>
-    </form>
-</section>
+            <div class="form-group has-feedback">
+                <label class="control-label">성명</label>
+                <input class="form-control" type="text" id="username" name="username"/>
+            </div>
+
+            <div class="form-group has-feedback">
+                <button class="btn btn-success" type="submit" id="submit">회원가입</button>
+                <button class="btn btn-danger cancel" type="button">취소</button>
+            </div>
+        </form>
+    </section>
+
+</div>
 </body>
 </html>

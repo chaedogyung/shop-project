@@ -7,6 +7,8 @@ import com.board.vo.SearchCriteria;
 import jakarta.annotation.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import java.util.HashMap;
@@ -43,8 +45,10 @@ public class BoardServiceImpl implements BoardService {
         return dao.listCount(scri);
     }
 
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     @Override
     public BoardVO read(int bno) throws Exception {
+        dao.boardHit(bno);
         return dao.read(bno);
     }
 

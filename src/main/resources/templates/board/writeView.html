@@ -1,36 +1,29 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <!-- 합쳐지고 최소화된 최신 CSS -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
-    <!-- 부가적인 테마 -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap-theme.min.css">
-    <meta charset="UTF-8">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-    <title>게시판</title>
-    <style>
-        #fileIndex .form-group {
-            display: flex;            /* Use flexbox to align items */
-            align-items: center;      /* Vertically align items */
-            margin-bottom: 10px;      /* Add some space between rows */
-        }
-
-        #fileIndex input[type="file"] {
-            flex: 1;                  /* Allow file input to take available space */
-            margin-right: 10px;       /* Add spacing between file input and button */
-        }
-
-        #fileIndex button {
-            flex-shrink: 0;           /* Prevent the button from shrinking */
-            cursor: pointer;          /* Make the button visually interactive */
-        }
-    </style>
+<head th:replace="~{common/common :: common}">
 </head>
+<style>
+    #fileIndex .form-group {
+        display: flex; /* Use flexbox to align items */
+        align-items: center; /* Vertically align items */
+        margin-bottom: 10px; /* Add some space between rows */
+    }
+
+    #fileIndex input[type="file"] {
+        flex: 1; /* Allow file input to take available space */
+        margin-right: 10px; /* Add spacing between file input and button */
+    }
+
+    #fileIndex button {
+        flex-shrink: 0; /* Prevent the button from shrinking */
+        cursor: pointer; /* Make the button visually interactive */
+    }
+</style>
 <script type="text/javascript">
     $(document).ready(function () {
         var formObj = $("form[name='writeForm']");
 
-        $(document).on("click","#fileDel", function(){
+        $(document).on("click", "#fileDel", function () {
             $(this).parent().remove();
         })
         fn_addFile();
@@ -55,24 +48,27 @@
         }
     }
 
-    function fn_addFile(){
-        var fileIndex =1;
-        $(".fileAdd_btn").on("click", function(){
-            $("#fileIndex").append("<div class=\"form-group\"><input type='file' style='float:left;' name='file_"+(fileIndex++)+"'>"+"<button type='button' style='float:right;' id='fileDelBtn'>"+"삭제"+"</button></div>");
+    function fn_addFile() {
+        var fileIndex = 1;
+        $(".fileAdd_btn").on("click", function () {
+            $("#fileIndex").append("<div class=\"form-group\"><input type='file' style='float:left;' name='file_" + (fileIndex++) + "'>" + "<button type='button' style='float:right;' id='fileDelBtn'>" + "삭제" + "</button></div>");
         })
-        $(document).on("click","#fileDelBtn", function(){
+        $(document).on("click", "#fileDelBtn", function () {
             $(this).parent().remove();
 
         });
     }
 </script>
 <body>
+
 <div class="container" id="root">
     <header>
         <h1>게시판</h1>
     </header>
-    <div th:replace="~{common/nav :: nav}"></div>
-    <section id="container" class="container">
+    <div th:replace="~{common/nav :: header}"></div>
+    <!-- Include Sidebar -->
+    <div th:replace="~{common/sidebar :: sidebar}"></div>
+    <section id="container" class="container" style="margin-top: -634px;">
         <div th:if="${session.member != null and session.member.userid != null}">
             <form name="writeForm" method="post" th:action="@{/board/write}" enctype="multipart/form-data">
                 <div class="form-group">

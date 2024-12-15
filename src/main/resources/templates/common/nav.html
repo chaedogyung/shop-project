@@ -7,22 +7,19 @@
         gap: 10px; /* Optional: adds spacing between list items */
     }
 </style>
-<div th:fragment="nav">
-    <hr/>
-    <div>
-        <ul class="listLink" style="display: flex;margin-top: 0;margin-bottom: 10px;gap: 32px;">
-            <li><a href="/board/list">목록</a></li>
-            <li><a href="/board/writeView">글 작성</a></li>
-            <li th:if="${session.member == null}">
-                <a href="/">로그인</a>
-            </li>
-            <li th:if="${session.member != null}">
-                <a href="/member/logout">로그아웃</a>
-            </li>
-            <li th:if="${session.member != null}">
-                <p th:text="${session.member.userid} + '님 안녕하세요'"></p>
-            </li>
-        </ul>
-    </div>
-</div>
+<header th:fragment="header">
+    <ul class="listLink" style="display: flex;margin-top: 0;margin-bottom: 10px;gap: 32px;">
+        <li><a href="/board/list">목록</a></li>
+        <li><a href="/board/writeView">글 작성</a></li>
+        <li th:if="${session.member == null}">
+            <a href="/">로그인</a>
+        </li>
+        <li th:if="${session.member != null}">
+            <a href="/member/logout">로그아웃</a>
+        </li>
+        <li th:if="${session.member != null}">
+            <p th:text="${session.member.userid} + '님 안녕하세요'"></p>
+        </li>
+    </ul>
+</header>
 <hr style="margin-top: 20px;"/>

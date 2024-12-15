@@ -1,13 +1,6 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <!-- 합쳐지고 최소화된 최신 CSS -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
-    <!-- 부가적인 테마 -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap-theme.min.css">
-    <meta charset="UTF-8">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-    <title>게시판</title>
+<head th:replace="~{common/common :: common}">
 </head>
 <style>
     .no-content-message {
@@ -58,15 +51,22 @@
                 + "&keyword=" + keyword;
         });
 
-        //댓글 작성
+        // 댓글 작성
         $('.replyWriteBtn').on('click', function () {
+            var bno = $('#bno').val();
+            var re_writer = $('#re_writer').val();
+            var re_content = $('#re_content').val();
+            var csrfToken = $("input[name='_csrf']").val();  // Get CSRF token
             $.ajax({
-                url: '/board/replyWrite', // Your endpoint
+                url: '/board/replyWrite', // Ensure the URL starts from the root
                 type: 'post',
                 data: {
-                    bno: $('#bno').val(),
-                    re_writer: $('#re_writer').val(),
-                    re_content: $('#re_content').val()
+                    bno,
+                    re_writer,
+                    re_content
+                },
+                headers: {
+                    'X-CSRF-TOKEN': csrfToken  // Include CSRF token in the header
                 },
                 success: function () {
                     startReplyList();
@@ -100,12 +100,16 @@
         const $li = $(this).closest('li');
         const replyRno = $(this).data('rno');
         const updatedContent = $li.find('.replyEditInput').val();
+        var csrfToken = $("input[name='_csrf']").val();  // Get CSRF token
         $.ajax({
             url: '/board/replyUpdate', // Your endpoint for updating
             type: 'post',
             data: {
                 re_rno: replyRno,
                 re_content: updatedContent
+            },
+            headers: {
+                'X-CSRF-TOKEN': csrfToken  // Include CSRF token in the header
             },
             success: function () {
                 startReplyList(); // 댓글 목록을 다시 조회하여 업데이트
@@ -153,11 +157,15 @@
     $(document).on('click', '.delete_y', function () {
         const $li = $(this).closest('li');
         const replyRno = $li.data('rno');
+        var csrfToken = $("input[name='_csrf']").val();  // Get CSRF token
         $.ajax({
             url: '/board/replyDelete', // Your endpoint for updating
             type: 'delete',
             data: {
                 re_rno: replyRno
+            },
+            headers: {
+                'X-CSRF-TOKEN': csrfToken  // Include CSRF token in the header
             },
             success: function () {
                 startReplyList(); // 댓글 목록을 다시 조회하여 업데이트
@@ -169,7 +177,7 @@
         });
     });
 
-    function fn_fileDown(fileNo){
+    function fn_fileDown(fileNo) {
         var formObj = $("form[name='readForm']");
         $("#FILE_NO").attr("th:value", fileNo);
         formObj.attr("action", "/board/fileDown");
@@ -205,6 +213,7 @@
                     });
                 } else {
                     // 댓글이 없는 경우
+                    $('.replyList').empty();
                     $('#noContentMessage').show();
                 }
             },
@@ -216,20 +225,25 @@
     }
 </script>
 <body>
-<div id="root" class="container">
+<div class="container" id="root">
     <header>
         <h1>게시판</h1>
     </header>
-    <div th:replace="~{common/nav :: nav}"></div>
-    <section id="container" class="container">
+    <div th:replace="~{common/nav :: header}"></div>
+    <!-- Include Sidebar -->
+    <div th:replace="~{common/sidebar :: sidebar}"></div>
+    <section id="container" class="container" style="margin-top: -628px;">
         <form name="readForm" role="form" method="post">
+            <div th:if="${session.member != null}">
+                <input type="hidden" name="_csrf" th:value="${_csrf.token}"/>
+            </div>
             <input type="hidden" id="bno" name="bno" th:value="${read.bno}"/>
             <input type="hidden" id="page" name="page" th:value="${scri.page}"/>
             <input type="hidden" id="perPageNum" name="perPageNum" th:value="${scri.perPageNum}"/>
             <input type="hidden" id="searchType" name="searchType" th:value="${scri.searchType}"/>
             <input type="hidden" id="keyword" name="keyword" th:value="${scri.keyword}"/>
             <div th:each="file : ${file}">
-                <input type="hidden" id="file_no" name="file_no" th:value="${file.FILE_NO}" />
+                <input type="hidden" id="file_no" name="file_no" th:value="${file.FILE_NO}"/>
             </div>
         </form>
         <div class="form-group">
@@ -267,9 +281,9 @@
 
         <div id="reply">
             <ol class="replyList">
-                <p id="noContentMessage" style="display:none;" class="no-content-message">댓글이 없습니다.</p>
                 <!-- Message for no content -->
             </ol>
+            <p id="noContentMessage" style="display:none;" class="no-content-message">댓글이 없습니다.</p>
         </div>
 
         <form class="form-horizontal">

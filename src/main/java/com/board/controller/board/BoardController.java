@@ -18,7 +18,9 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.io.File;
+import java.io.*;
+import java.net.URLEncoder;
+import java.nio.file.Files;
 import java.util.List;
 import java.util.Map;
 
@@ -210,18 +212,41 @@ public class BoardController {
     public void fileDown(@RequestParam Map<String, Object> map, HttpServletResponse response) throws Exception {
         logger.info("fileDown");
         Map<String, Object> resultMap = service.selectFileInfo(map);
-//        String storedFileName = (String) resultMap.get("STORED_FILE_NAME");
+
         String storedFileName = FileUtils.filePath + resultMap.get("STORED_FILE_NAME");
         String originalFileName = (String) resultMap.get("ORG_FILE_NAME");
+        File file = new File(storedFileName);
 
-        byte fileByte[] = org.apache.commons.io.FileUtils.readFileToByteArray(new File(storedFileName));
+        if (!file.exists()) {
+            logger.error("Requested file does not exist: {}", storedFileName);
+            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            return;
+        }
 
-        response.setContentType("application/octet-stream");
-        response.setContentLength(fileByte.length);
-        response.setHeader("Content-Disposition", "attachment; filename=\"" + originalFileName + "\"");
-        response.getOutputStream().write(fileByte);
-        response.getOutputStream().flush();
-        response.getOutputStream().close();
+        // MIME 타입 감지
+        String mimeType = Files.probeContentType(file.toPath());
+        if (mimeType == null) {
+            mimeType = "application/octet-stream"; // 기본값 설정
+        }
+
+        response.setContentType(mimeType); // 동적으로 설정된 MIME 타입
+        response.setContentLengthLong(file.length());
+        response.setHeader("Content-Disposition", "attachment; filename=\"" +
+                URLEncoder.encode(originalFileName, "UTF-8").replaceAll("\\+", "%20") + "\"");
+
+        // 파일 데이터 전송
+        try (InputStream inputStream = new FileInputStream(file);
+             OutputStream outputStream = response.getOutputStream()) {
+            byte[] buffer = new byte[8192];
+            int bytesRead;
+            while ((bytesRead = inputStream.read(buffer)) != -1) {
+                outputStream.write(buffer, 0, bytesRead);
+            }
+            outputStream.flush();
+        } catch (IOException e) {
+            logger.error("Error while downloading file: {}", e.getMessage());
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        }
     }
 }
 

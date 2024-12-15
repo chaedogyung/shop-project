@@ -8,8 +8,35 @@
     <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <title>게시판</title>
 </head>
+<style>
+    #fileIndex .form-group {
+        display: flex;
+        align-items: center; /* 수직 정렬 */
+        margin-bottom: 10px; /* 각 그룹 간격 */
+    }
+
+    #fileIndex .form-group input[type="file"] {
+        flex: 1; /* 파일 입력 필드 확장 */
+        margin-right: 10px; /* 삭제 버튼과 간격 */
+    }
+
+    #fileIndex .form-group button {
+        flex-shrink: 0; /* 버튼 크기 고정 */
+        padding: 5px 10px; /* 버튼 패딩 */
+        background-color: #f5f5f5; /* 버튼 배경색 */
+        border: 1px solid #ccc; /* 버튼 테두리 */
+        cursor: pointer; /* 마우스 커서 */
+        transition: background-color 0.3s; /* hover 효과 */
+    }
+
+    #fileIndex .form-group button:hover {
+        background-color: #ddd; /* hover 시 색상 변경 */
+    }
+</style>
 <script type="text/javascript">
     $(document).ready(function () {
+        fn_addFile();
+        fn_del();
         var formObj = $("form[name='updateForm']");
 
         $(".cancel_btn").on("click", function (event) {
@@ -40,19 +67,51 @@
             }
         }
     }
+
+    function fn_addFile() {
+        var fileIndex = 1;
+        $(".fileAdd_btn").on("click", function () {
+            $("#fileIndex").append("<div class=\"form-group\"><input type='file' style='float:left;' name='file_" + (fileIndex++) + "'>" + "<button type='button' style='float:right;' id='fileDelBtn'>" + "삭제" + "</button></div>");
+        })
+        $(document).on("click", "#fileDelBtn", function () {
+            $(this).parent().remove();
+
+        });
+    }
+
+    var fileNoArry = [];
+    var fileNameArry = [];
+
+    function fn_del(value, name) {
+
+        fileNoArry.push(value);
+        fileNameArry.push(name);
+        $("#fileNoDel").attr("value", fileNoArry);
+        $("#fileNameDel").attr("value", fileNameArry);
+        $("input[name="+name+"]").parent().parent().remove();
+    }
 </script>
 <body>
 <div id="root" class="container">
     <header>
         <h1>게시판</h1>
     </header>
-    <div th:replace="~{common/nav :: nav}"></div>
-    <section id="container" class="container">
-        <form name="updateForm" role="form" method="post" th:action="@{/board/update}">
-            <input type="hidden" name="bno" th:value="${update.bno}" readonly="readonly">
+    <div th:replace="~{common/nav :: header}"></div>
+    <!-- Include Sidebar -->
+    <div th:replace="~{common/sidebar :: sidebar}"></div>
+    <section id="container" class="container" style="margin-top: -634px;">
+        <form name="updateForm" role="form" method="post" th:action="@{/board/update}" enctype="multipart/form-data">
+            <input type="hidden" name="bno" th:value="${update.bno}" readonly="readonly"/>
+            <input type="hidden" id="page" name="page" th:value="${scri.page}"/>
+            <input type="hidden" id="perPageNum" name="perPageNum" th:value="${scri.perPageNum}"/>
+            <input type="hidden" id="searchType" name="searchType" th:value="${scri.searchType}"/>
+            <input type="hidden" id="keyword" name="keyword" th:value="${scri.keyword}"/>
+            <input type="hidden" id="fileNoDel" name="fileNoDel[]" value=""/>
+            <input type="hidden" id="fileNameDel" name="fileNameDel[]" value=""/>
             <div class="form-group">
                 <label for="title" class="col-sm-2 control-label">제목</label>
-                <input type="text" id="title" name="title" th:value="${update.title}" class="chk form-control" title="제목을 입력하세요"/>
+                <input type="text" id="title" name="title" th:value="${update.title}" class="chk form-control"
+                       title="제목을 입력하세요"/>
             </div>
             <div class="form-group">
                 <label for="content" class="col-sm-2 control-label">내용</label>
@@ -68,9 +127,27 @@
                 <label for="regdate" class="col-sm-2 control-label">작성날짜</label>
                 <span th:text="${#dates.format(update.regdate, 'yyyy-MM-dd')}"></span>
             </div>
+
+            <div class="form-group" id="fileIndex">
+                <div th:each="file, varStat : ${file}">
+                    <div>
+                        <input type="hidden" id="FILE_NO" th:name="'FILE_NO_' + ${varStat.index}"
+                               th:value="${file.FILE_NO}"/>
+                        <input type="hidden" id="FILE_NAME" name="FILE_NAME" th:value="'FILE_NO_' + ${varStat.index}"/>
+                        <a href="#" id="fileName" onclick="return false;" th:text="${file.ORG_FILE_NAME}"></a>
+                        (<span th:text="${file.FILE_SIZE}"></span>kb)
+                        <button id="fileDel" type="button"
+                                th:onclick="'fn_del(' + ${file.FILE_NO} + ',\'FILE_NO_' + ${varStat.index} + '\');'">삭제
+                        </button>
+                        <br>
+                    </div>
+                </div>
+            </div>
+
             <div>
                 <button type="submit" class="update_btn btn btn-warning">저장</button>
                 <button type="button" class="cancel_btn btn btn-danger">취소</button>
+                <button type="button" class="fileAdd_btn btn btn-primary">파일추가</button>
             </div>
         </form>
     </section>

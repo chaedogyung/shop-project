@@ -49,27 +49,36 @@
     });
 </script>
 <body>
-<section id="container">
-    <form th:action="@{/member/memberUpdate}" method="post" id="updateForm">
+<div id="root" class="container">
+    <header>
+        <h1>회원정보수정</h1>
+    </header>
+
+    <div th:replace="~{common/nav :: header}"></div>
+    <!-- Include Sidebar -->
+    <div th:replace="~{common/sidebar :: sidebar}"></div>
+    <section id="container" class="container" style="margin-top: -634px;">
+        <form th:action="@{/member/memberUpdate}" method="post" id="updateForm">
+            <div class="form-group has-feedback">
+                <label class="control-label" for="userId">아이디</label>
+                <input class="form-control" type="text" id="userid" name="userid"
+                       th:value="${session.member.userid}" readonly/>
+            </div>
+            <div class="form-group has-feedback">
+                <label class="control-label" for="userPass">패스워드</label>
+                <input class="form-control" type="password" id="userpass" name="userpass"/>
+            </div>
+            <div class="form-group has-feedback">
+                <label class="control-label" for="userName">성명</label>
+                <input class="form-control" type="text" id="username" name="username"
+                       th:value="${session.member.username}"/>
+            </div>
+        </form>
         <div class="form-group has-feedback">
-            <label class="control-label" for="userId">아이디</label>
-            <input class="form-control" type="text" id="userid" name="userid"
-                   th:value="${session.member.userid}" readonly/>
+            <button class="btn btn-success" type="button" id="submit">회원정보수정</button>
+            <button class="cancel btn btn-danger" type="button">취소</button>
         </div>
-        <div class="form-group has-feedback">
-            <label class="control-label" for="userPass">패스워드</label>
-            <input class="form-control" type="password" id="userpass" name="userpass"/>
-        </div>
-        <div class="form-group has-feedback">
-            <label class="control-label" for="userName">성명</label>
-            <input class="form-control" type="text" id="username" name="username"
-                   th:value="${session.member.username}"/>
-        </div>
-    </form>
-    <div class="form-group has-feedback">
-        <button class="btn btn-success" type="button" id="submit">회원정보수정</button>
-        <button class="cancel btn btn-danger" type="button">취소</button>
-    </div>
-</section>
+    </section>
+</div>
 </body>
 </html>
